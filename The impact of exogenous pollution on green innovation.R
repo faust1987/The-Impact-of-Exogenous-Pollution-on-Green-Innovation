@@ -85,7 +85,7 @@ ggplot(hist_data_100km, aes(gi_cap, fill=Groups, colour=Groups)) +
 ggplot(hist_data_100km, aes(gi_cap, fill=Groups, colour=Groups)) +
   stat_density(aes(group = Groups, color = Groups),position="identity",geom="line",size=1.5)+
   xlab("The number of green innovations per billion RMB in total assets ") + ylab("Density")+
-  ggtitle("Kernal densities for green innovations")
+  ggtitle("Kernal densities for green innovations") + scale_color_grey() + theme_classic()
 
 
 
@@ -929,4 +929,33 @@ reg_table=stargazer(match_reg_100km, match_reg_200km, match_reg_300km,match_reg_
 
 matching_table=huxreg("100km"=match_reg_100km, "200km"=match_reg_200km,"300km"=match_reg_300km,"400km"=match_reg_400km,statistics = "nobs")
 quick_docx(matching_table, file = "matching_table.docx")
+
+
+
+# Mahalanobis distance matching
+
+match_result <- matchit(Heating ~ `Total Asset`+Industry_English+ Mining+Power
+                        +Textile+Steel+Chemical+Petrochemical+ Cement +Metallurgical+Pharmaceutical, data = data_100km, method="nearest",distance="mahalanobis", ratio=1)
+matched_data_100km= match.data(match_result)[1:ncol(data_100km)]
+match_reg_100km=lm(gi_cap ~ Heating +distance_running+heating_distance+RoNA+ EpS+ GRoMBI+ NoD, data=matched_data_100km)
+
+match_result <- matchit(Heating ~ `Total Asset`+Industry_English+ Mining+Power
+                        +Textile+Steel+Chemical+Petrochemical+ Cement +Metallurgical+Pharmaceutical, data = data_200km, method="nearest", distance="mahalanobis",ratio=1)
+matched_data_200km= match.data(match_result)[1:ncol(data_200km)]
+match_reg_200km=lm(gi_cap ~ Heating +distance_running+heating_distance+RoNA+ EpS+ GRoMBI+ NoD, data=matched_data_200km)
+
+match_result <- matchit(Heating ~ `Total Asset`+Industry_English+ Mining+Power
+                        +Textile+Steel+Chemical+Petrochemical+ Cement +Metallurgical+Pharmaceutical, data = data_300km, method="nearest",distance="mahalanobis", ratio=1)
+matched_data_300km= match.data(match_result)[1:ncol(data_300km)]
+match_reg_300km=lm(gi_cap ~ Heating +distance_running+heating_distance+RoNA+ EpS+ GRoMBI+ NoD, data=matched_data_300km)
+
+match_result <- matchit(Heating ~ `Total Asset`+Industry_English+ Mining+Power
+                        +Textile+Steel+Chemical+Petrochemical+ Cement +Metallurgical+Pharmaceutical, data = data_400km, method="nearest", distance="mahalanobis",ratio=1)
+matched_data_400km= match.data(match_result)[1:ncol(data_400km)]
+match_reg_400km=lm(gi_cap ~ Heating +distance_running+heating_distance+RoNA+ EpS+ GRoMBI+ NoD, data=matched_data_400km)
+
+
+reg_table=stargazer(match_reg_100km, match_reg_200km, match_reg_300km,match_reg_400km,  type = "text",intercept.bottom = F, intercept.top = T)
+matching_table=huxreg("100km"=match_reg_100km, "200km"=match_reg_200km,"300km"=match_reg_300km,"400km"=match_reg_400km,statistics = "nobs")
+quick_docx(matching_table, file = "matching_table_2.docx")
 
